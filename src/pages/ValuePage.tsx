@@ -1,9 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { ArchitectureSnapshot } from '../types';
 import { calculateCustomerValue } from '../utils/value';
 
 interface Props {
   snapshot: ArchitectureSnapshot | null;
+  costPerGB: number;
+  onCostChange: (cost: number) => void;
 }
 
 function formatCurrency(value: number): string {
@@ -26,8 +28,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   'risk-mitigation': '#f59e0b',
 };
 
-export default function ValuePage({ snapshot }: Props) {
-  const [costPerGB, setCostPerGB] = useState(3.5);
+export default function ValuePage({ snapshot, costPerGB, onCostChange }: Props) {
 
   const value = useMemo(() => {
     if (!snapshot) return null;
@@ -72,7 +73,7 @@ export default function ValuePage({ snapshot }: Props) {
             min={0.01}
             step={0.25}
             value={costPerGB}
-            onChange={(e) => setCostPerGB(Math.max(0.01, parseFloat(e.target.value) || 0.01))}
+            onChange={(e) => onCostChange(Math.max(0.01, parseFloat(e.target.value) || 0.01))}
           />
           <span className="cost-suffix">/GB/day</span>
         </div>

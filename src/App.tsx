@@ -19,6 +19,7 @@ declare global {
 
 function App() {
   const [snapshot, setSnapshot] = useState<ArchitectureSnapshot | null>(null);
+  const [costPerGB, setCostPerGB] = useState(3.5);
 
   return (
     <BrowserRouter basename={window.CRIBL_BASE_PATH ?? '/'}>
@@ -28,9 +29,9 @@ function App() {
           <Route path="snapshot" element={<SnapshotPage snapshot={snapshot} />} />
           <Route path="risks" element={<RisksPage snapshot={snapshot} />} />
           <Route path="recommendations" element={<RecommendationsPage snapshot={snapshot} />} />
-          <Route path="opportunities" element={<OpportunitiesPage snapshot={snapshot} />} />
+          <Route path="opportunities" element={<OpportunitiesPage snapshot={snapshot} costPerGB={costPerGB} />} />
           <Route path="maturity" element={<MaturityPage snapshot={snapshot} />} />
-          <Route path="value" element={<ValuePage snapshot={snapshot} />} />
+          <Route path="value" element={<ValuePage snapshot={snapshot} costPerGB={costPerGB} onCostChange={setCostPerGB} />} />
           <Route path="deliverables" element={<DeliverablesPage snapshot={snapshot} />} />
         </Route>
       </Routes>

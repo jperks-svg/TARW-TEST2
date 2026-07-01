@@ -1,4 +1,5 @@
 import type { ArchitectureSnapshot, ValueLineItem, ValueProjection, CustomerValue } from '../types';
+import type { QuickWin } from './opportunities';
 import { assessMaturity } from './maturity';
 
 const DEFAULT_COST_PER_GB = 3.50;
@@ -198,4 +199,33 @@ function calculateProjectedValue(snapshot: ArchitectureSnapshot, costPerGB: numb
   }
 
   return projections;
+}
+
+export function estimateQuickWinValue(win: QuickWin, snapshot: ArchitectureSnapshot, costPerGB: number): number {
+  switch (win.id) {
+    case 'dormant-lake':
+      return snapshot.totalDailyIngestGB * costPerGB * 0.85 * 365;
+    case 'single-dest-fanout':
+      return snapshot.totalDailyIngestGB * costPerGB * 0.4 * 365;
+    case 'dormant-object-store':
+      return snapshot.totalDailyIngestGB * costPerGB * 0.6 * 365;
+    case 'search-underused':
+      return 50 * 15 * 250;
+    case 'enable-pq': {
+      const unprotectedVolume = snapshot.destinations
+        .filter(d => d.status === 'active' && !d.pqEnabled)
+        .reduce((sum, d) => sum + d.dailyVolumeGB, 0);
+      return unprotectedVolume * costPerGB * 30;
+    }
+    case 'edge-scale-up':
+      return snapshot.totalDailyIngestGB * 0.5 * costPerGB * 365;
+    case 'lake-no-search':
+      return 50 * 15 * 250;
+    default:
+      return 0;
+  }
+}
+
+export function estimateSourceAnnualCost(dailyVolumeGB: number, costPerGB: number): number {
+  return dailyVolumeGB * costPerGB * 365;
 }

@@ -3,13 +3,15 @@ import { Map, DollarSign, Zap, ArrowRight, CheckCircle2, Circle, Clock, Calendar
 import Card from '../components/Card';
 import { formatBytes } from '../utils/analysis';
 import { generateSourceUseCaseMap, generateCostModel, identifyQuickWins } from '../utils/opportunities';
+import { estimateQuickWinValue, estimateSourceAnnualCost } from '../utils/value';
 import type { ArchitectureSnapshot } from '../types';
 
 interface Props {
   snapshot: ArchitectureSnapshot | null;
+  costPerGB: number;
 }
 
-export default function OpportunitiesPage({ snapshot }: Props) {
+export default function OpportunitiesPage({ snapshot, costPerGB }: Props) {
   const { useCaseMap, costModel, quickWins } = useMemo(() => {
     if (!snapshot) return { useCaseMap: [], costModel: null, quickWins: [] };
     return {
@@ -49,30 +51,39 @@ export default function OpportunitiesPage({ snapshot }: Props) {
           </div>
 
           <div className="quick-wins-list">
-            {quickWins.map(win => (
-              <div key={win.id} className={`quick-win-card impact-${win.impact}`}>
-                <div className="quick-win-header">
-                  <h3>{win.title}</h3>
-                  <div className="quick-win-meta">
-                    <span className={`badge badge-effort-${win.effort === 'minutes' ? 'low' : win.effort === 'hours' ? 'medium' : 'high'}`}>
-                      {win.effort === 'minutes' ? <Timer size={11} /> : win.effort === 'hours' ? <Clock size={11} /> : <Calendar size={11} />}
-                      {win.effort}
-                    </span>
-                    <span className={`badge badge-impact-${win.impact}`}>
-                      Impact: {win.impact}
-                    </span>
+            {quickWins.map(win => {
+              const winValue = snapshot ? estimateQuickWinValue(win, snapshot, costPerGB) : null;
+              return (
+                <div key={win.id} className={`quick-win-card impact-${win.impact}`}>
+                  <div className="quick-win-header">
+                    <h3>{win.title}</h3>
+                    <div className="quick-win-meta">
+                      {winValue && winValue > 0 && (
+                        <span className="badge badge-value">
+                          <DollarSign size={11} />
+                          ${formatCurrency(winValue)}/yr
+                        </span>
+                      )}
+                      <span className={`badge badge-effort-${win.effort === 'minutes' ? 'low' : win.effort === 'hours' ? 'medium' : 'high'}`}>
+                        {win.effort === 'minutes' ? <Timer size={11} /> : win.effort === 'hours' ? <Clock size={11} /> : <Calendar size={11} />}
+                        {win.effort}
+                      </span>
+                      <span className={`badge badge-impact-${win.impact}`}>
+                        Impact: {win.impact}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="quick-win-desc">{win.description}</p>
+                  <div className="quick-win-action">
+                    <ArrowRight size={14} />
+                    <span><strong>Action:</strong> {win.action}</span>
+                  </div>
+                  <div className="quick-win-evidence">
+                    <span>{win.evidence}</span>
                   </div>
                 </div>
-                <p className="quick-win-desc">{win.description}</p>
-                <div className="quick-win-action">
-                  <ArrowRight size={14} />
-                  <span><strong>Action:</strong> {win.action}</span>
-                </div>
-                <div className="quick-win-evidence">
-                  <span>{win.evidence}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
@@ -158,7 +169,10 @@ export default function OpportunitiesPage({ snapshot }: Props) {
           </div>
 
           <div className="use-case-list">
-            {useCaseMap.map(source => (
+            {useCaseMap.map(source => {
+              const matchedSource = snapshot!.sources.find(s => s.id === source.sourceId);
+              const annualCost = matchedSource ? estimateSourceAnnualCost(matchedSource.dailyVolumeGB, costPerGB) : 0;
+              return (
               <Card key={source.sourceId} className="use-case-card">
                 <div className="use-case-header">
                   <div>
@@ -166,6 +180,9 @@ export default function OpportunitiesPage({ snapshot }: Props) {
                     <span className="text-muted">{source.sourceType} • {source.category}</span>
                   </div>
                   <div className="use-case-counts">
+                    {annualCost > 0 && (
+                      <span className="badge badge-value">${formatCurrency(annualCost)}/yr ingest cost</span>
+                    )}
                     <span className="badge badge-success">{source.currentState.length} active</span>
                     <span className="badge badge-info">{source.possibleStates.length} possible</span>
                   </div>
@@ -192,7 +209,8 @@ export default function OpportunitiesPage({ snapshot }: Props) {
                   ))}
                 </div>
               </Card>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
