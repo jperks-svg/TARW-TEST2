@@ -1,0 +1,51 @@
+policies:
+  - object: '/master/groups'
+    actions: ['GET']
+  - object: '/master/groups/*'
+    actions: ['GET']
+  - object: '/master/groups/*/workers'
+    actions: ['GET']
+  - object: '/m/:gid/system/inputs'
+    actions: ['GET']
+  - object: '/m/:gid/system/outputs'
+    actions: ['GET']
+  - object: '/m/:gid/system/status/inputs'
+    actions: ['GET']
+  - object: '/m/:gid/system/status/outputs'
+    actions: ['GET']
+  - object: '/m/:gid/routes'
+    actions: ['GET']
+  - object: '/m/:gid/pipelines'
+    actions: ['GET']
+  - object: '/system/inputs'
+    actions: ['GET']
+  - object: '/system/outputs'
+    actions: ['GET']
+  - object: '/system/status/inputs'
+    actions: ['GET']
+  - object: '/system/status/outputs'
+    actions: ['GET']
+  - object: '/system/info'
+    actions: ['GET']
+  - object: '/system/licenses'
+    actions: ['GET']
+  - object: '/system/licenses/usage'
+    actions: ['GET']
+  - object: '/routes'
+    actions: ['GET']
+  - object: '/pipelines'
+    actions: ['GET']
+  - object: '/master/summary/workers'
+    actions: ['GET']
+  - object: '/health/workers'
+    actions: ['GET']
+  - object: '/insights/metrics/query'
+    actions: ['POST']
+  - object: '/products/lake/lakes/*'
+    actions: ['GET']
+  - object: '/m/default_search/search/saved'
+    actions: ['GET']
+  - object: '/m/default_search/search/datasets'
+    actions: ['GET']
+  - object: '/m/default_search/search/jobs'
+    actions: ['GET']
