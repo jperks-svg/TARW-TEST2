@@ -52,16 +52,16 @@ export default function OpportunitiesPage({ snapshot, costPerGB }: Props) {
 
           <div className="quick-wins-list">
             {quickWins.map(win => {
-              const winValue = snapshot ? estimateQuickWinValue(win, snapshot, costPerGB) : null;
+              const winEstimate = snapshot ? estimateQuickWinValue(win, snapshot, costPerGB) : null;
               return (
                 <div key={win.id} className={`quick-win-card impact-${win.impact}`}>
                   <div className="quick-win-header">
                     <h3>{win.title}</h3>
                     <div className="quick-win-meta">
-                      {winValue && winValue > 0 && (
+                      {winEstimate && winEstimate.amount > 0 && (
                         <span className="badge badge-value">
                           <DollarSign size={11} />
-                          ${formatCurrency(winValue)}/yr
+                          ${formatCurrency(winEstimate.amount)}/yr
                         </span>
                       )}
                       <span className={`badge badge-effort-${win.effort === 'minutes' ? 'low' : win.effort === 'hours' ? 'medium' : 'high'}`}>
@@ -74,6 +74,11 @@ export default function OpportunitiesPage({ snapshot, costPerGB }: Props) {
                     </div>
                   </div>
                   <p className="quick-win-desc">{win.description}</p>
+                  {winEstimate && winEstimate.formula && (
+                    <div className="quick-win-formula">
+                      <span>{winEstimate.formula}</span>
+                    </div>
+                  )}
                   <div className="quick-win-action">
                     <ArrowRight size={14} />
                     <span><strong>Action:</strong> {win.action}</span>

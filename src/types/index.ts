@@ -187,6 +187,21 @@ export interface ExecutiveSummary {
   }>;
 }
 
+export interface ValueFormula {
+  expression: string;
+  variables: { label: string; value: string }[];
+  result: string;
+}
+
+export interface QualitativeValue {
+  id: string;
+  category: 'time-savings' | 'risk-posture' | 'agility' | 'visibility';
+  title: string;
+  description: string;
+  metric: string;
+  evidence: string;
+}
+
 export interface ValueLineItem {
   id: string;
   category: 'cost-reduction' | 'operational' | 'flexibility' | 'risk-mitigation';
@@ -194,6 +209,7 @@ export interface ValueLineItem {
   description: string;
   annualValue: number;
   evidence: string;
+  formula: ValueFormula;
 }
 
 export interface ValueProjection {
@@ -203,6 +219,7 @@ export interface ValueProjection {
   description: string;
   additionalAnnualValue: number;
   requirement: string;
+  formula: ValueFormula;
 }
 
 export interface CustomerValue {
@@ -211,6 +228,7 @@ export interface CustomerValue {
   projectedAnnualValue: number;
   valueLineItems: ValueLineItem[];
   projections: ValueProjection[];
+  qualitativeValues: QualitativeValue[];
 }
 
 export type AppPhase = 'loading' | 'discovery' | 'snapshot' | 'analysis' | 'recommendations' | 'deliverables';

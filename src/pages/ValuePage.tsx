@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
-import type { ArchitectureSnapshot } from '../types';
+import { useMemo, useState } from 'react';
+import { ChevronDown, ChevronRight, Clock, Shield, Gauge, Eye } from 'lucide-react';
+import type { ArchitectureSnapshot, ValueFormula } from '../types';
 import { calculateCustomerValue } from '../utils/value';
 
 interface Props {
@@ -27,6 +28,44 @@ const CATEGORY_COLORS: Record<string, string> = {
   'flexibility': '#8b5cf6',
   'risk-mitigation': '#f59e0b',
 };
+
+const QUAL_CATEGORY_LABELS: Record<string, string> = {
+  'time-savings': 'Time Savings',
+  'risk-posture': 'Risk Posture',
+  'agility': 'Agility',
+  'visibility': 'Visibility',
+};
+
+const QUAL_CATEGORY_ICONS: Record<string, typeof Clock> = {
+  'time-savings': Clock,
+  'risk-posture': Shield,
+  'agility': Gauge,
+  'visibility': Eye,
+};
+
+function FormulaBreakdown({ formula }: { formula: ValueFormula }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="formula-container">
+      <button className="formula-toggle" onClick={() => setExpanded(!expanded)}>
+        {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        <span className="formula-expression">{formula.expression}</span>
+        <span className="formula-result">= {formula.result}</span>
+      </button>
+      {expanded && (
+        <div className="formula-details">
+          {formula.variables.map((v, i) => (
+            <div key={i} className="formula-variable">
+              <span className="formula-var-label">{v.label}:</span>
+              <span className="formula-var-value">{v.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ValuePage({ snapshot, costPerGB, onCostChange }: Props) {
 
@@ -78,7 +117,7 @@ export default function ValuePage({ snapshot, costPerGB, onCostChange }: Props) 
           <span className="cost-suffix">/GB/day</span>
         </div>
         <p className="cost-hint">
-          Adjust this to match your actual destination licensing cost (e.g., Splunk ingest pricing, Datadog per-GB, etc.)
+          Adjust this to match your actual destination licensing cost (e.g., Splunk ingest pricing, Datadog per-GB, etc.). This value is used across all pages.
         </p>
       </div>
 
@@ -87,7 +126,7 @@ export default function ValuePage({ snapshot, costPerGB, onCostChange }: Props) 
         <div className="value-summary-card current">
           <div className="value-summary-label">Current Annual Value</div>
           <div className="value-summary-amount">{formatCurrency(value.currentAnnualValue)}</div>
-          <div className="value-summary-detail">{value.valueLineItems.length} value drivers identified</div>
+          <div className="value-summary-detail">{value.valueLineItems.length} quantified + {value.qualitativeValues.length} qualitative</div>
         </div>
         <div className="value-summary-card projected">
           <div className="value-summary-label">Projected Additional Value</div>
@@ -130,7 +169,8 @@ export default function ValuePage({ snapshot, costPerGB, onCostChange }: Props) 
 
       {/* Current Value Detail */}
       <section className="value-section">
-        <h2>Current Value Realized</h2>
+        <h2>Quantified Value — Current</h2>
+        <p className="section-subtitle">Click any formula to see the full calculation breakdown.</p>
         <div className="value-items-grid">
           {value.valueLineItems.map((item) => (
             <div key={item.id} className="value-item-card">
@@ -142,20 +182,51 @@ export default function ValuePage({ snapshot, costPerGB, onCostChange }: Props) 
               </div>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
-              <div className="value-item-evidence">
-                <strong>Evidence:</strong> {item.evidence}
-              </div>
+              <FormulaBreakdown formula={item.formula} />
             </div>
           ))}
         </div>
       </section>
+
+      {/* Qualitative Value */}
+      {value.qualitativeValues.length > 0 && (
+        <section className="value-section">
+          <h2>Qualitative Value</h2>
+          <p className="section-subtitle">
+            Value that matters but doesn't reduce to a single dollar figure — time savings per engineer, risk posture improvements, and operational agility.
+          </p>
+          <div className="value-items-grid">
+            {value.qualitativeValues.map((item) => {
+              const Icon = QUAL_CATEGORY_ICONS[item.category] || Eye;
+              return (
+                <div key={item.id} className="value-item-card qualitative">
+                  <div className="value-item-header">
+                    <span className="value-item-category qualitative-category">
+                      <Icon size={13} />
+                      {QUAL_CATEGORY_LABELS[item.category]}
+                    </span>
+                  </div>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  <div className="qualitative-metric">
+                    {item.metric}
+                  </div>
+                  <div className="value-item-evidence">
+                    <strong>Evidence:</strong> {item.evidence}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Projected Value */}
       {value.projections.length > 0 && (
         <section className="value-section">
           <h2>Projected Value at Higher Maturity</h2>
           <p className="section-subtitle">
-            Additional value achievable by progressing up the maturity model.
+            Additional value achievable by progressing up the maturity model. Click formulas to see assumptions.
           </p>
           <div className="value-projections-grid">
             {value.projections.map((proj) => (
@@ -166,6 +237,7 @@ export default function ValuePage({ snapshot, costPerGB, onCostChange }: Props) 
                 </div>
                 <h3>{proj.title}</h3>
                 <p>{proj.description}</p>
+                <FormulaBreakdown formula={proj.formula} />
                 <div className="value-projection-requirement">
                   <strong>To unlock:</strong> {proj.requirement}
                 </div>

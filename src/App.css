@@ -1530,6 +1530,105 @@ body {
   line-height: 1.4;
 }
 
+/* Formula Breakdown */
+.formula-container {
+  margin-top: 10px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 8px;
+}
+
+.formula-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.formula-toggle:hover {
+  color: var(--color-text);
+}
+
+.formula-expression {
+  flex: 1;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.formula-result {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.formula-details {
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: var(--color-bg);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formula-variable {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  gap: 12px;
+}
+
+.formula-var-label {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.formula-var-value {
+  color: var(--color-text);
+  font-family: monospace;
+  text-align: right;
+}
+
+/* Qualitative Value */
+.value-item-card.qualitative {
+  border-left: 3px solid #64748b;
+}
+
+.qualitative-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #64748b !important;
+}
+
+.qualitative-metric {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-bg);
+  padding: 8px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+/* Quick Win Formula */
+.quick-win-formula {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin: 6px 0;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .grid-2 { grid-template-columns: 1fr; }
